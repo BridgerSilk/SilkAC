@@ -1,0 +1,402 @@
+# Anticheat Skript made by BridgerSilk
+# Do not edit the Code!
+# Do not re-publish the code!
+# Do not remove any credits from the code!
+
+# Edit the option values as you wish:
+
+options:
+# The prefix used for all messages in this code
+  prefix: &3[&bSAC&3]
+# The Permission for the main command
+  admin-permission: silkac.admin
+# The Permission for the players who should receive flag messages
+  flag-message-permission: silkac.flags
+# This will be displayed when a player gets banned or kicked (keep empty if you want no discord link displayed)
+  discord-link: discord.gg/yourserver
+# This will be displayed when a player gets banned or kicked (keep empty if you want no website link displayed)
+  website-link: www.yourserver.com
+# Should it automatically kick a player if they flag much
+  auto-kick: true
+# Should it automatically ban a player if they flag much
+  auto-ban: false
+
+# -------------------------------------------------------
+
+command /silkanticheat [<text>] [<offline player>] [<text>]:
+  aliases: /sac
+  permission: {@admin-permission}
+  trigger:
+    if arg 1 is not set:
+      send "{@prefix} &6------------------------------------"
+      send "{@prefix} &e&lSilkAnticheat"
+      send "{@prefix} &7Developed by BridgerSilk <3"
+      send "{@prefix} &6&lCommand List:"
+      send "{@prefix} &c/silkanticheat check <player>"
+      send "{@prefix} &c/silkanticheat kick <player> <reason>"
+      send "{@prefix} &c/silkanticheat ban <player> <reason>"
+      send "{@prefix} &c/silkanticheat unban <player>"
+      send "{@prefix} &c/silkanticheat mute <player> <reason>"
+      send "{@prefix} &c/silkanticheat unmute <player>"
+      send "{@prefix} &c/silkanticheat addnote <player> <note>"
+      send "{@prefix} &6------------------------------------"
+    if arg 1 is "check":
+      if arg 2 is set:
+        set {current.check.%player's uuid%} to arg 2
+        set {_gui} to a new chest inventory with 1 row named "&8Checking %arg-2%"
+        set slot 0 of {_gui} to arg-2's skull named "&7&lPlayer's Name:" with lore "&c%arg-2%"
+        set slot 1 of {_gui} to paper named "&7&lPlayer's IP:" with lore "&c%arg-2's IP%"
+        set slot 2 of {_gui} to paper named "&7&lPlayer's UUID:" with lore "&c%arg-2's uuid%"
+        set slot 3 of {_gui} to empty map named "&7&lPlayer's Notes:" with lore "&c%{notes.%arg-2's uuid%::*}%"
+        set slot 4 of {_gui} to book named "&7&lPlayer's Bans:" with lore "&c%{bans.%arg-2's uuid%::*}%"
+        set slot 5 of {_gui} to book named "&7&lPlayer's Kicks:" with lore "&c%{kicks.%arg-2's uuid%::*}%"
+        set slot 6 of {_gui} to book named "&7&lPlayer's Mutes:" with lore "&c%{mutes.%arg-2's uuid%::*}%"
+        set slot 7 of {_gui} to emerald named "&7&lPlayer's Ping:" with lore "&c%arg-2's ping%"
+        set slot 8 of {_gui} to item frame named "&7&lPlayer's Flag Count:" with lore "&c%{flags.%arg-2's uuid%}%"
+        open {_gui} to player
+    if arg 1 is "kick":
+      if arg 2 is a player:
+        if arg 2 is online:
+          add arg 3 to {kicks.%arg-2's uuid%::*}
+          send "{@prefix} &c%arg-2% &7successfully got kicked for &c%arg-3%&7!"
+          kick arg 2 due to "{@prefix}%newline%&7%newline%&cYou got kicked!%newline%&cReason: %arg-3% %newline%&7%newline%&7Website: &b{@website-link}%newline%&7Discord Server: &b{@discord-link}"
+        else:
+          send "{@prefix} &cThis Player is not online!"
+      else:
+        send "{@prefix} &cThis is not a valid Playername!"
+    if arg 1 is "ban":
+      if arg 2 is a player:
+        if arg 2 is online:
+          add arg 3 to {bans.%arg-2's uuid%::*}
+          send "{@prefix} &c%arg-2% &7successfully got banned for &c%arg-3%&7!"
+          ban arg 2 due to "{@prefix}%newline%&7%newline%&cYou got permanently banned!%newline%&cReason: %arg-3% %newline%&7%newline%&7Website: &b{@website-link}%newline%&7Discord Server: &b{@discord-link}"
+          kick arg 2 due to "{@prefix}%newline%&7%newline%&cYou got permanently banned!%newline%&cReason: %arg-3% %newline%&7%newline%&7Website: &b{@website-link}%newline%&7Discord Server: &b{@discord-link}"
+        else:
+          send "{@prefix} &cThis Player is not online!"
+      else:
+        send "{@prefix} &cThis is not a valid Playername!"
+    if arg 1 is "unban":
+      if arg 2 is a player:
+        if arg 2 is banned:
+          unban arg 2
+          send "{@prefix} &c%arg-2% &7successfully got unbanned!"
+        else:
+          send "{@prefix} &cThis Player is not banned!"
+      else:
+        send "{@prefix} &cThis is not a valid Playername!"
+    if arg 1 is "mute":
+      if arg 2 is a player:
+        add arg 3 to {mutes.%arg-2's uuid%::*}
+        set {mute.%arg-2's uuid%} to true
+        set {mute.reason.%arg-2's uuid%} to arg 3
+        send "{@prefix} &c%arg-2% &7successfully got muted for &c%arg-3%&7!"
+      else:
+        send "{@prefix} &cThis is not a valid Playername!"
+    if arg 1 is "unmute":
+      if arg 2 is a player:
+        send "{@prefix} &c%arg-2% &7successfully got unmuted!"
+        delete {mute.%arg-2's uuid%}
+        delete {mute.reason.%arg-2's uuid%}
+      else:
+        send "{@prefix} &cThis is not a valid Playername!"
+    if arg 1 is "addnote":
+      if arg 2 is a player:
+        if arg 3 is set:
+          add arg 3 to {notes.%arg-2's uuid%::*}
+          send "{@prefix} &c""%arg-3%"" &7successfully got added to &c%arg-2%&7's Note List!"
+        else:
+          send "{@prefix} &cThere is no Note defined!"
+      else:
+        send "{@prefix} &cThis is not a valid Playername!"
+
+on inventory click:
+  if name of event-inventory is "&8Checking %{current.check.%player's uuid%}%":
+    cancel event
+
+# Mute event
+on chat:
+  if {mute.%player's uuid%} is set:
+    cancel event
+    send "{@prefix} &cYou are muted!"
+    send "{@prefix} &7Reason: %{mute.reason.%player's uuid%}%"
+
+# Attack Reach check (100% working, no false flags)
+on damage:
+  if damage cause is attack:
+    if attacker is a player:
+      loop all players in radius 3.7 around victim:
+        add loop-player to {_attacklog::*}
+      if {_attacklog::*} does not contain attacker:
+        set {_rnd} to a random integer between 62 and 100
+        loop all players:
+          if loop-player has permission "{@flag-message-permission}":
+            send "{@prefix} &c%attacker% &7might use &cReach &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player
+            add 1 to {flags.%attacker's uuid%}
+            if {_rnd} is 100:
+              if {@auto-kick} is true:
+                execute console command "sac kick %attacker% Cheating-Reach"
+                send "{@prefix} &c%attacker% &7got kicked for &cCheating-Reach" to loop-player
+              if {@auto-ban} is true:
+                execute console command "sac ban %attacker% Cheating-Reach"
+                send "{@prefix} &c%attacker% &7got banned for &cCheating-Reach" to loop-player
+
+# Velocity/Anti KB Check (only checking for blatant anti kb)
+on damage:
+  if damage cause is attack:
+    if victim is a player:
+      set {_ycoords} to victim's y-coord
+      set {_xcoords} to victim's x-coord
+      set {_zcoords} to victim's z-coord
+      set {_pos} to position of victim
+      wait 12 ticks
+      loop all players in radius 0.5 around {_pos}:
+        if loop-player is victim:
+          set {_rnd} to a random integer between 62 and 100
+          loop all players:
+            if loop-player-2 has permission "{@flag-message-permission}":
+              send "{@prefix} &c%victim% &7might use &cAntiKnockback &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player-2
+              add 1 to {flags.%victim's uuid%}
+              if {_rnd} is 100:
+                if {@auto-kick} is true:
+                  execute console command "sac kick %victim% Cheating-Velocity/AntiKnockback"
+                  send "{@prefix} &c%victim% &7got kicked for &cCheating-Velocity/AntiKnockback" to loop-player-2
+                if {@auto-ban} is true:
+                  execute console command "sac ban %victim% Cheating-Velocity/AntiKnockback"
+                  send "{@prefix} &c%victim% &7got banned for &cCheating-Velocity/AntiKnockback" to loop-player-2
+
+# Nuker check (kinda bad, only detects really bad nukers, often false flags if breaking alot of grass)
+on break:
+  set {_breakblock} to event-location
+  if location of targeted block of player is {_breakblock}:
+    stop
+  else:
+    set {_rnd} to a random integer between 62 and 100
+    loop all players:
+      if loop-player has permission "{@flag-message-permission}":
+        send "{@prefix} &c%player% &7might use &cNuker &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player
+        add 1 to {flags.%player's uuid%}
+        if {_rnd} is 100:
+          if {@auto-kick} is true:
+            execute console command "sac kick %player% Cheating-Nuker"
+            send "{@prefix} &c%player% &7got kicked for &cCheating-Nuker" to loop-player
+          if {@auto-ban} is true:
+            execute console command "sac ban %player% Cheating-Nuker"
+            send "{@prefix} &c%player% &7got banned for &cCheating-Nuker" to loop-player
+
+# No Slowdown check (100% working, no false flags)
+on consume:
+  if player is sprinting:
+    set {_rnd} to a random integer between 62 and 100
+    loop all players:
+      if loop-player has permission "{@flag-message-permission}":
+        send "{@prefix} &c%player% &7might use &cNoSlowdown &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player
+        add 1 to {flags.%player's uuid%}
+        if {_rnd} is 100:
+          if {@auto-kick} is true:
+            execute console command "sac kick %player% Cheating-NoSlowdown"
+            send "{@prefix} &c%player% &7got kicked for &cCheating-NoSlowdown" to loop-player
+          if {@auto-ban} is true:
+            execute console command "sac ban %player% Cheating-NoSlowdown"
+            send "{@prefix} &c%player% &7got banned for &cCheating-NoSlowdown" to loop-player
+
+# AntiFire check: health (100% working, no false flags, sometimes may not flag even if positive)
+on damage:
+  if damage cause is burn:
+    set {_hp} to victim's health
+    wait 1 second
+    if victim's health > {_hp} + 2:
+      set {_rnd} to a random integer between 62 and 100
+      loop all players:
+        if loop-player has permission "{@flag-message-permission}":
+          send "{@prefix} &c%victim% &7might use &cAntiFire &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player
+          add 1 to {flags.%victim's uuid%}
+          if {_rnd} is 100:
+            if {@auto-kick} is true:
+              execute console command "sac kick %victim% Cheating-AntiFire"
+              send "{@prefix} &c%victim% &7got kicked for &cCheating-AntiFire" to loop-player
+            if {@auto-ban} is true:
+              execute console command "sac ban %victim% Cheating-AntiFire"
+              send "{@prefix} &c%victim% &7got banned for &cCheating-AntiFire" to loop-player
+
+# AntiFire check: burn (90% working, may false flag)
+on damage:
+  if damage cause is burn:
+    wait 1 second
+    if victim is not on fire:
+      if block at position of victim is not water:
+        set {_rnd} to a random integer between 62 and 100
+        loop all players:
+          if loop-player has permission "{@flag-message-permission}":
+            send "{@prefix} &c%victim% &7might use &cAntiFire &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player
+            add 1 to {flags.%victim's uuid%}
+            if {_rnd} is 100:
+              if {@auto-kick} is true:
+                execute console command "sac kick %victim% Cheating-AntiFire"
+                send "{@prefix} &c%victim% &7got kicked for &cCheating-AntiFire" to loop-player
+              if {@auto-ban} is true:
+                execute console command "sac ban %victim% Cheating-AntiFire"
+                send "{@prefix} &c%victim% &7got banned for &cCheating-AntiFire" to loop-player
+
+# Fly check (uhh 50% working, false flags alot probably, not fully tested, doesnt flag if the player flies short above the ground)
+on player move:
+  if block below player is air:
+    if block below block below player is air:
+      if block below block below block below player is air:
+        if block below block below block below block below player is air:
+          if player's gamemode is survival:
+            wait 2 seconds
+            if block below block below block below block below player is air:
+              set {_rnd} to a random integer between 62 and 100
+              loop all players:
+                if loop-player has permission "{@flag-message-permission}":
+                  send "{@prefix} &c%player% &7might use &cFlight &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player
+                  add 1 to {flags.%player's uuid%}
+                  if {_rnd} is 100:
+                    if {@auto-kick} is true:
+                      execute console command "sac kick %player% Cheating-Flight"
+                      send "{@prefix} &c%player% &7got kicked for &cCheating-Flight" to loop-player
+                    if {@auto-ban} is true:
+                      execute console command "sac ban %player% Cheating-Flight"
+                      send "{@prefix} &c%player% &7got banned for &cCheating-Flight" to loop-player
+
+# Killaura check (70% working, basically works but only detects bad killauras, no false flag)
+on damage:
+  if damage cause is attack:
+    if attacker is a player:
+      if attacker's target is not victim:
+        set {_rnd} to a random integer between 62 and 100
+        loop all players:
+          if loop-player has permission "{@flag-message-permission}":
+            send "{@prefix} &c%victim% &7might use &cKillaura &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player
+            add 1 to {flags.%victim's uuid%}
+            if {_rnd} is 100:
+              if {@auto-kick} is true:
+                execute console command "sac kick %victim% Cheating-Killaura"
+                send "{@prefix} &c%victim% &7got kicked for &cCheating-Killaura" to loop-player
+              if {@auto-ban} is true:
+                execute console command "sac ban %victim% Cheating-Killaura"
+                send "{@prefix} &c%victim% &7got banned for &cCheating-Killaura" to loop-player
+
+# Jesus check (90% working, some false flags)
+on player walk:
+  if block below player is water:
+    if block at position of player is water:
+      stop
+    else:
+      wait 2 seconds
+      if block at position of player is not water:
+        set {_rnd} to a random integer between 62 and 100
+        loop all players:
+          if loop-player has permission "{@flag-message-permission}":
+            send "{@prefix} &c%player% &7might use &cJesus &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player
+            add 1 to {flags.%player's uuid%}
+            if {_rnd} is 100:
+              if {@auto-kick} is true:
+                execute console command "sac kick %player% Cheating-Jesus"
+                send "{@prefix} &c%player% &7got kicked for &cCheating-Jesus" to loop-player
+              if {@auto-ban} is true:
+                execute console command "sac ban %player% Cheating-Jesus"
+                send "{@prefix} &c%player% &7got banned for &cCheating-Jesus" to loop-player
+
+# FastPlace Check A: Blocks per Tick (80% working, if drag click or just more than 20 cps it false flags)
+on place:
+  if player's gamemode is survival:
+    add 1 to {fastplace.%player's uuid%}
+    if {fastplace.%player's uuid%} > 2:
+      set {_rnd} to a random integer between 62 and 100
+      if {_rnd} is set:
+        loop all players:
+          if loop-player has permission "{@flag-message-permission}":
+            send "{@prefix} &c%player% &7might use &cFastPlace-A &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player
+            add 1 to {flags.%player's uuid%}
+            if {_rnd} is 100:
+              if {@auto-kick} is true:
+                execute console command "sac kick %player% Cheating-FastPlace"
+                send "{@prefix} &c%player% &7got kicked for &cCheating-FastPlace-A" to loop-player
+              if {@auto-ban} is true:
+                execute console command "sac ban %player% Cheating-FastPlace"
+                send "{@prefix} &c%player% &7got banned for &cCheating-FastPlace-A" to loop-player
+
+every 2 ticks:
+  loop all players:
+    set {fastplace.%loop-player's uuid%} to 0
+
+# FastPlace Check B: Delay between Block Placement (80% working, if drag click or just more than 20 cps it false flags)
+on place:
+  if player's gamemode is survival:
+    set {delay.place.%player's uuid%} to false
+    if {delay.place.time.%player's uuid%} < 1:
+      set {_rnd} to a random integer between 62 and 100
+      if {_rnd} is set:
+        loop all players:
+          if loop-player has permission "{@flag-message-permission}":
+            send "{@prefix} &c%player% &7might use &cFastPlace-B &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player
+            add 1 to {flags.%player's uuid%}
+            if {_rnd} is 100:
+              if {@auto-kick} is true:
+                execute console command "sac kick %player% Cheating-FastPlace"
+                send "{@prefix} &c%player% &7got kicked for &cCheating-FastPlace-B" to loop-player
+              if {@auto-ban} is true:
+                execute console command "sac ban %player% Cheating-FastPlace"
+                send "{@prefix} &c%player% &7got banned for &cCheating-FastPlace-B" to loop-player
+    set {delay.place.%player's uuid%} to true
+    set {delay.place.time.%player's uuid%} to 0
+
+every 1 tick:
+  loop all players:
+    if {delay.place.%loop-player's uuid%} is true:
+      add 1 to {delay.place.time.%loop-player's uuid%}
+
+# Autoclicker Check (80% working, same system as fastplace check so also same problems)
+on leftclick:
+  if player's gamemode is survival:
+    add 1 to {autoclick.left.%player's uuid%}
+    if {autoclick.left.%player's uuid%} > 30:
+      set {_rnd} to a random integer between 62 and 100
+      if {_rnd} is set:
+        loop all players:
+          if loop-player has permission "{@flag-message-permission}":
+            send "{@prefix} &c%player% &7might use &cAutoclick-LMB &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player
+            add 1 to {flags.%player's uuid%}
+            if {_rnd} is 100:
+              if {@auto-kick} is true:
+                execute console command "sac kick %player% Cheating-AutoclickLMB"
+                send "{@prefix} &c%player% &7got kicked for &cCheating-AutoclickLMB" to loop-player
+              if {@auto-ban} is true:
+                execute console command "sac ban %player% Cheating-AutoclickLMB"
+                send "{@prefix} &c%player% &7got banned for &cCheating-AutoclickLMB" to loop-player
+
+on rightclick:
+  if player's gamemode is survival:
+    add 1 to {autoclick.right.%player's uuid%}
+    if {autoclick.right.%player's uuid%} > 30:
+      set {_rnd} to a random integer between 62 and 100
+      if {_rnd} is set:
+        loop all players:
+          if loop-player has permission "{@flag-message-permission}":
+            send "{@prefix} &c%player% &7might use &cAutoclick-RMB &7(&3Reliability: %{_rnd}%%%&7)!" to loop-player
+            add 1 to {flags.%player's uuid%}
+            if {_rnd} is 100:
+              if {@auto-kick} is true:
+                execute console command "sac kick %player% Cheating-AutoclickRMB"
+                send "{@prefix} &c%player% &7got kicked for &cCheating-AutoclickRMB" to loop-player
+              if {@auto-ban} is true:
+                execute console command "sac ban %player% Cheating-AutoclickRMB"
+                send "{@prefix} &c%player% &7got banned for &cCheating-AutoclickRMB" to loop-player
+
+every 2 seconds:
+  loop all players:
+    set {autoclick.right.%loop-player's uuid%} to 0
+    set {autoclick.left.%loop-player's uuid%} to 0
+
+# InvWalk (0% working, doesnt false flag nor flag, just doesnt do anything)
+on inventory open:
+  if event-inventory is player's inventory:
+    set {open.%player's uuid%} to true
+
+on inventory close:
+  set {open.%player's uuid%} to false
+
+on player move:
+  if {open.%player's uuid%} is true:
+    send "test"
